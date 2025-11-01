@@ -1,0 +1,72 @@
+2025-11-01 17:01:55.364 | INFO     | wp_helper:send_message:20 - Opening chat for 7679735335
+2025-11-01 17:02:25.513 | ERROR    | wp_helper:send_message:29 - Message could not be sent to 7679735335: Message: 
+Stacktrace:
+	GetHandleVerifier [0x0x7dfe43+66515]
+	GetHandleVerifier [0x0x7dfe84+66580]
+	(No symbol) [0x0x5cdc48]
+	(No symbol) [0x0x618704]
+	(No symbol) [0x0x618aab]
+	(No symbol) [0x0x65f482]
+	(No symbol) [0x0x63b214]
+	(No symbol) [0x0x65cba7]
+	(No symbol) [0x0x63afc6]
+	(No symbol) [0x0x60c2ca]
+	(No symbol) [0x0x60d154]
+	GetHandleVerifier [0x0xa37353+2521315]
+	GetHandleVerifier [0x0xa322d3+2500707]
+	GetHandleVerifier [0x0x807c94+229924]
+	GetHandleVerifier [0x0x7f81f8+165768]
+	GetHandleVerifier [0x0x7fecad+193085]
+	GetHandleVerifier [0x0x7e8158+100072]
+	GetHandleVerifier [0x0x7e82f0+100480]
+	GetHandleVerifier [0x0x7d25aa+11066]
+	BaseThreadInitThunk [0x0x758e5d49+25]
+	RtlInitializeExceptionChain [0x0x776cd6db+107]
+	RtlGetAppContainerNamedObjectPath [0x0x776cd661+561]
+
+2025-11-01 17:02:29.760 | INFO     | wp_helper:send_message:20 - Opening chat for 9735877857
+2025-11-01 17:02:59.934 | ERROR    | wp_helper:send_message:29 - Message could not be sent to 9735877857: Message: 
+Stacktrace:
+	GetHandleVerifier [0x0x7dfe43+66515]
+	GetHandleVerifier [0x0x7dfe84+66580]
+	(No symbol) [0x0x5cdc48]
+	(No symbol) [0x0x618704]
+	(No symbol) [0x0x618aab]
+	(No symbol) [0x0x65f482]
+	(No symbol) [0x0x63b214]
+	(No symbol) [0x0x65cba7]
+	(No symbol) [0x0x63afc6]
+	(No symbol) [0x0x60c2ca]
+	(No symbol) [0x0x60d154]
+	GetHandleVerifier [0x0xa37353+2521315]
+	GetHandleVerifier [0x0xa322d3+2500707]
+	GetHandleVerifier [0x0x807c94+229924]
+	GetHandleVerifier [0x0x7f81f8+165768]
+	GetHandleVerifier [0x0x7fecad+193085]
+	GetHandleVerifier [0x0x7e8158+100072]
+	GetHandleVerifier [0x0x7e82f0+100480]
+	GetHandleVerifier [0x0x7d25aa+11066]
+	BaseThreadInitThunk [0x0x758e5d49+25]
+	RtlInitializeExceptionChain [0x0x776cd6db+107]
+	RtlGetAppContainerNamedObjectPath [0x0x776cd661+561]
+
+2025-11-01 17:32:04.305 | INFO     | wp_helper:send_message:20 - Opening chat for 7679735335
+2025-11-01 17:32:14.741 | INFO     | wp_helper:send_message:35 - Message sent to 7679735335
+2025-11-01 17:32:15.265 | INFO     | wp_helper:send_message:20 - Opening chat for 9735877857
+2025-11-01 17:32:25.907 | INFO     | wp_helper:send_message:35 - Message sent to 9735877857
+2025-11-01 18:11:31.232 | INFO     | wp_helper:send_message:20 - Opening chat for 7679735335
+2025-11-01 18:11:42.981 | INFO     | wp_helper:send_message:35 - Message sent to 7679735335
+2025-11-01 18:11:43.615 | INFO     | wp_helper:send_message:20 - Opening chat for 9735877857
+2025-11-01 18:11:54.829 | INFO     | wp_helper:send_message:35 - Message sent to 9735877857
+2025-11-01 18:17:33.768 | INFO     | wp_helper:send_message:20 - Opening chat for 7679735335
+2025-11-01 18:17:45.036 | INFO     | wp_helper:send_message:35 - Message sent to 7679735335
+2025-11-01 18:17:45.749 | INFO     | wp_helper:send_message:20 - Opening chat for 9735877857
+2025-11-01 18:17:57.180 | INFO     | wp_helper:send_message:35 - Message sent to 9735877857
+2025-11-01 18:21:46.158 | INFO     | wp_helper:send_message:20 - Opening chat for 7679735335
+2025-11-01 18:21:56.718 | INFO     | wp_helper:send_message:35 - Message sent to 7679735335
+2025-11-01 18:21:57.462 | INFO     | wp_helper:send_message:20 - Opening chat for 9735877857
+2025-11-01 18:22:08.120 | INFO     | wp_helper:send_message:35 - Message sent to 9735877857
+2025-11-01 18:26:10.454 | INFO     | wp_helper:send_message:20 - Opening chat for 7679735335
+2025-11-01 18:26:20.989 | INFO     | wp_helper:send_message:35 - Message sent to 7679735335
+2025-11-01 18:26:21.836 | INFO     | wp_helper:send_message:20 - Opening chat for 9735877857
+2025-11-01 18:26:33.518 | INFO     | wp_helper:send_message:35 - Message sent to 9735877857

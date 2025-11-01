@@ -1,0 +1,18 @@
+{
+    "users": {
+        "username": "svmy",
+        "password": "12345"
+    },
+    "credentials": {
+        "senderEmail": "",
+        "senderName": "",
+        "appPassword": "",
+        "emailTracking": false,
+        "whatsappNumber": "",
+        "whatsappBusinessName": "",
+        "whatsappReceipts": false,
+        "messageDelay": "0",
+        "autoSave": false,
+        "notifications": false
+    }
+}

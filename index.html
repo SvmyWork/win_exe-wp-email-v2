@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Start Counter Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #0078d4;
+      color: white;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    #output {
+      font-size: 24px;
+      color: #0078d4;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Click to Start Python Counter</h2>
+  <button onclick="startCounting()">Start Counting</button>
+  <div id="output">Waiting...</div>
+
+  <script>
+    async function startCounting() {
+      document.getElementById("output").innerText = "Starting...";
+      const result = await window.pywebview.api.start_count();
+      console.log(result);
+    }
+
+    // Called by Python to update the counter
+    function updateCount(text) {
+      document.getElementById("output").innerText = text;
+      console.log("From Python:", text);
+    }
+  </script>
+</body>
+</html>
