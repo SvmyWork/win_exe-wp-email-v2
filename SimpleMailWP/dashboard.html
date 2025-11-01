@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessagingHub - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-paper-plane text-2xl mr-3 text-blue-600"></i>
+                    <h1 class="text-xl font-bold text-gray-900">MessagingHub</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userDisplay" class="text-sm text-gray-700"></span>
+                    <button id="logoutBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8 fade-in">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome to MessagingHub</h2>
+            <p class="text-gray-600">Choose a channel to start sending messages</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 fade-in">
+            <div class="bg-white rounded-lg shadow border border-gray-200 p-8 hover:shadow-md transition cursor-pointer" onclick="selectChannel('email')">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="p-4 bg-blue-100 rounded-full">
+                        <i class="fas fa-envelope text-blue-600 text-4xl"></i>
+                    </div>
+                    <span class="px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold">Active</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Email Messages</h3>
+                <p class="text-gray-600 mb-4">Send personalized email messages to your contacts</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">Click to continue</span>
+                    <i class="fas fa-arrow-right text-blue-600"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow border border-gray-200 p-8 hover:shadow-md transition cursor-pointer" onclick="selectChannel('whatsapp')">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="p-4 bg-green-100 rounded-full">
+                        <i class="fab fa-whatsapp text-green-600 text-4xl"></i>
+                    </div>
+                    <span class="px-4 py-2 bg-green-100 text-green-600 rounded-full text-sm font-semibold">Active</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">WhatsApp Messages</h3>
+                <p class="text-gray-600 mb-4">Send instant messages via WhatsApp Business</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">Click to continue</span>
+                    <i class="fas fa-arrow-right text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 grid md:grid-cols-3 gap-6 fade-in">
+            <div class="bg-white rounded-lg shadow border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Total Sent</p>
+                        <p class="text-2xl font-bold text-gray-900">1,234</p>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-lg">
+                        <i class="fas fa-paper-plane text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Success Rate</p>
+                        <p class="text-2xl font-bold text-gray-900">98.5%</p>
+                    </div>
+                    <div class="p-3 bg-green-50 rounded-lg">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">Active Contacts</p>
+                        <p class="text-2xl font-bold text-gray-900">567</p>
+                    </div>
+                    <div class="p-3 bg-gray-100 rounded-lg">
+                        <i class="fas fa-users text-gray-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
