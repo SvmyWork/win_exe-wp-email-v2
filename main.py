@@ -16,6 +16,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import quote
 import re
 from wp_helper import send_message
+import requests
+
+APP_VERSION = "1.0.0"
+UPDATE_CHECK_URL = "http://127.0.0.1:8000/api/latest_version"  # ← replace with your API
 
 
 SETTINGS_FILE = "settings.json"
@@ -229,8 +233,69 @@ class API:
         return {}
     
 
+def check_for_updates():
+    """Check for updates before starting the app UI."""
+    print("🔍 Checking for updates...")
+    try:
+        response = requests.get(UPDATE_CHECK_URL, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            latest_version = data.get("version")
+            download_url = data.get("download_url")
+
+            if latest_version and latest_version != APP_VERSION:
+                message = f"""
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            text-align: center;
+                        }}
+                        .update-message {{
+                            margin-bottom: 20px;
+                            font-size: 16px;
+                        }}
+                        .download-link {{
+                            display: inline-block;
+                            padding: 10px 20px;
+                            background-color: #4CAF50;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            transition: background-color 0.3s;
+                        }}
+                        .download-link:hover {{
+                            background-color: #45a049;
+                        }}
+                    </style>
+                    <div class="update-message">
+                        A new version ({latest_version}) is available!
+                    </div>
+                    <a href="{download_url}" class="download-link" target="_blank">
+                        Download Update
+                    </a>
+                    """
+                # create a small temporary window for alert
+                temp_window = webview.create_window("Update Available", html=message, width=400, height=200)
+                webview.start(gui='edgechromium')
+                return False  # stop startup
+            else:
+                print("✅ App is up to date.")
+                return True
+        else:
+            print(f"⚠️ Version check failed: HTTP {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"⚠️ Could not check for updates: {e}")
+        return False
+
 
 def start_app():
+    """Start the main app only if update check passes."""
+    if not check_for_updates():
+        print("❌ Version check failed or outdated — closing app.")
+        return  # Do not launch the main window
+
     window = webview.create_window(
         "Message Sender",
         "SimpleMailWP/index.html"
@@ -238,7 +303,7 @@ def start_app():
 
     api = API(window)
 
-    # ✅ Expose API methods individually
+    # ✅ Expose API methods
     window.expose(api.send_sms)
     window.expose(api.update_user_info)
     window.expose(api.update_credentials)
@@ -249,13 +314,12 @@ def start_app():
 
     def on_loaded():
         print("Window loaded and ready.")
-    
-    # Enable downloads
-    webview.settings['ALLOW_DOWNLOADS'] = True
 
-    window.events.loaded += lambda: window.maximize()  # or window.maximize()
+    webview.settings['ALLOW_DOWNLOADS'] = True
+    window.events.loaded += lambda: window.maximize()
 
     webview.start(on_loaded, debug=True, http_server=True, gui='edgechromium')
+
 
 if __name__ == "__main__":
     start_app()
