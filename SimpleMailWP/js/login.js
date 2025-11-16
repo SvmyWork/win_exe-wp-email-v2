@@ -29,12 +29,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             // 🔹 Make API call
+            const params = new URLSearchParams();
+            params.append('username', username);
+            params.append('password', password);
             const response = await fetch(`${CONFIG.API_URL}/api/app-login`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json, text/plain, */*',
                 },
-                body: JSON.stringify({ username, password })
+                body: params,
             });
 
             let data;

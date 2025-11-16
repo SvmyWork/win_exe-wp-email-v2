@@ -4,15 +4,16 @@
         "password": "12345"
     },
     "credentials": {
-        "senderEmail": "",
-        "senderName": "",
-        "appPassword": "",
-        "emailTracking": false,
-        "whatsappNumber": "",
-        "whatsappBusinessName": "",
-        "whatsappReceipts": false,
-        "messageDelay": "0",
-        "autoSave": false,
-        "notifications": false
+        "senderEmail": "svmypaul.cob420@gmail.com",
+        "senderName": "svmy paul",
+        "appPassword": "psgtnzytgcieauts",
+        "emailTracking": true,
+        "whatsappNumber": "+919735877857",
+        "whatsappBusinessName": "dszxc",
+        "userDataPath": "C:\\Users\\shubh\\AppData\\Local\\Google\\Chrome\\User Data\\svmy",
+        "whatsappReceipts": true,
+        "messageDelay": "2",
+        "autoSave": true,
+        "notifications": true
     }
 }

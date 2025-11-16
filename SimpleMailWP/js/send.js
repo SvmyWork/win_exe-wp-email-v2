@@ -117,10 +117,18 @@ async function loadRecipients() {
         document.getElementById('sendBtn').innerText = 'Open WhatsApp';
     }
 
-    filteredRecipients.forEach(recipient => {
+    const filtered = filteredRecipients.filter(recipient => {
+        // Only include recipients with email channel and "Queued" email_status
+        return channel === 'email'
+            ? recipient.email_status === 'Queued'
+            : recipient.wp_status === 'Queued';
+    });
+
+    filtered.forEach(recipient => {
         const contact = channel === 'email' ? recipient.email : recipient.phone;
         const status = channel === 'email' ? recipient.email_status : recipient.wp_status;
         const content = channel === 'email' ? recipient.emailContent : recipient.wp_content;
+
         const statusColor =
             status === 'Queued' ? 'bg-yellow-100 text-yellow-800' :
             status === 'pending' ? 'bg-gray-100 text-gray-800' :
@@ -159,6 +167,7 @@ async function loadRecipients() {
 
         tbody.appendChild(row);
     });
+
 
     if (selectAll) {
         selectAll.addEventListener('change', toggleSelectAll);

@@ -14,12 +14,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import quote
+import sys
 import re
 from wp_helper import send_message
 import requests
 
-APP_VERSION = "1.0.0"
-UPDATE_CHECK_URL = "http://127.0.0.1:8000/api/latest_version"  # ← replace with your API
+APP_VERSION = "1.0.1"
+UPDATE_CHECK_URL = "http://recruiters.site4people.com/api/latest_version"  # ← replace with your API
 
 
 SETTINGS_FILE = "settings.json"
@@ -237,7 +238,12 @@ def check_for_updates():
     """Check for updates before starting the app UI."""
     print("🔍 Checking for updates...")
     try:
-        response = requests.get(UPDATE_CHECK_URL, timeout=5)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        }
+
+        response = requests.get(UPDATE_CHECK_URL, headers=headers, timeout=5)
         if response.status_code == 200:
             data = response.json()
             latest_version = data.get("version")
@@ -289,8 +295,18 @@ def check_for_updates():
         print(f"⚠️ Could not check for updates: {e}")
         return False
 
+def resource_path(relative_path):
+    """Return absolute path to resource, works for dev and exe."""
+    try:
+        base_path = sys._MEIPASS  # for PyInstaller compatibility
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 def start_app():
+    file_path = resource_path("SimpleMailWP/index.html")
+    
     """Start the main app only if update check passes."""
     if not check_for_updates():
         print("❌ Version check failed or outdated — closing app.")
@@ -298,7 +314,7 @@ def start_app():
 
     window = webview.create_window(
         "Message Sender",
-        "SimpleMailWP/index.html"
+        "SimpleMailWP/index.html",
     )
 
     api = API(window)
@@ -318,7 +334,7 @@ def start_app():
     webview.settings['ALLOW_DOWNLOADS'] = True
     window.events.loaded += lambda: window.maximize()
 
-    webview.start(on_loaded, debug=True, http_server=True, gui='edgechromium')
+    webview.start(on_loaded, debug=False, http_server=True, gui='edgechromium')
 
 
 if __name__ == "__main__":

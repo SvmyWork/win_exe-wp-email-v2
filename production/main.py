@@ -1,4 +1,341 @@
+import webview
+import threading
+import time
+import os
+import datetime
+import json
+from helper import get_user, update_user, get_credentials, update_credentials, get_data, reset_data
+from email_helper import send_email, check_bounce
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from urllib.parse import quote
+import sys
+import re
+from wp_helper import send_message
+import requests
 
-# Python obfuscation by freecodingtools.org
-                    
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'FQLzF//97nv/tu0w/FaUvMQUzC+IEXPHKEaDx8Iqha9b78yZiGldrLwg6027Q7rHUTHYajIAQDQNSjKIAWbrQ56yYCc34SIjIH1F+4K9p3E9kHBi6y4hcyz91L7ETUSRWKcewLy4cQUlzw3UZbmAzU6SjzKClvudoxrShA6jpLKm+PlApjmdn+94ShPxViSYx98q5GcYvHkZ5a23woslsW2RuI9Q3m97y8s6T5eAjSr/BxWniMypIYBsLTTFON9ZnDa85ZFzOKWn7hkKH6ZzA43hdAsgHNYp2zJN6WqZkUDDSKiReSQSbtx5i7descZ7FJrdLc+HQRUPRtD11fEs0VJX69PtKAjxNKztPUedoHMtJ85t62p2uqa93bi9cZop1Y2/Ss70TNAfdTqTaWgxqYLFTRuwqp8gVYnnxbTHzip4hVCvnmONCz7bIkEmxaA9lORP4d9TYkael/w2D8eFlC3IZdBl2sEx2D9mT8ZwyNRdhcBQAulQwdp7Rur7CSHv2hk/hcU0zUZwr9++duC37sbk+ODTy8HiFwo/appfzR6g5WHQY5YDH6RA8MWSvAx4VGfgmoHuQvBaMYDYejXowrueViCIQYLmK2li83K/hzwpZeSghcN9jd8+hvmf3UP+q9HTMslGsj863+4QJ+RO5FKz3zJ8EvUdkcNs4kQj7+xLy1hodYx8t6yNZkQxjsBTvOeOrCvkicmIrlEYdpsOP117kTgYitaWApl+CzdFQcjO7B9pDXmmXgNW9yh6MjoeF6DowzTAxd7dpnRHwvX9tgdVIs1fEmTA/0LPr+mauIJRqpYnM+RZ+JRtESPDuxXplvJpI76GmQFwTTFxPjf7Xw1ENRFSQhZdBcvK+5Qoy7CfGrSJ6gN6RkUO5qEMC5Lm7ZGJvP8iOGsFDUr9TnyTMwnM9v/nFVq5YhatGBcmF9Ips3okheDqn44tUANN4g7timcvwHdjnj16NgvNM/S1i8EaNOmYCD5qvT6voYk6O4HRESbcFdYvIqNIHpyQKPsDy9H6rDudM4YLvh0sLUWuRz8NdamXt8aMiVrfEWVzbXcwXfrZQw0ISQ52AA3W2R+Z5APNHJwzaexMVSCD27/C0e9vLEDuMi+xweLWpH00s/9GfV2uBQj90T+PxZhlExpmxPidb7PHGyMzWD2kdegN/WXgn35onjbg42u1nO/sbkXzBSmMeGf0ctayeOdhW8JrQGLFtG0lIZVYkWNDfuBx8gmHrHxIXYwhuQRQAeel+YqXnumZZ8MwGSQY81s//f8GRd9CNKSBOrjPkxKDAbOB6hzUvNCdV405x1Z4YpUvH814gN/CJO4vsbbeEiM7Pa/0OnTWKh/AzPQbBnSRiwrsahJKmqX7iaCVextjzXtUNWLxFxs3oIbgYYgWJnpA5Xqz4c1Y7ywkJtf/d/X45nmNySmRa2wS5EjL+j7lW9vcjrX3qZwjeAPBdf2r4CKVmpI0iiLgK3MJb6w+Uobqe8hLZJdrwOfTwW8YoCCy2gnHSoPOOBYBncqiNfHfzaHhM2xltZQUf46M1dlsS48oMY6ToE5zwOvwX6gqWMh2Y+1YXm7zkpDYduVWZ0EYGPHbcVXOHVKAFiySyP24r2JO105zlaWyINMGwZy+v2R+SIFUGXl3GiaOs37e7ueFco7utZr1xyjq2zwXPhMnLzAWIpQNScP9j1G95JwJnRI06Toz25rjDUBvmAGMFjWbTL8m4lWxjb0dsXVlRZYWnNOelPPtkf+dFQahIj/HfZPrzlkrGb49v4duI7hnSDhsiRkbcSBAbZx4yARxKkBikwO6HPgRwbCUzKiPmfrO9m+wpA8uD/xPF4aLuV4RqTA66OWvZbItXdCA6C8cZIY64LndO7pDsKQU8xjXE+SCNv10ASJwnsyr+A/HuVDvm+bAxeRYrFOcv+K7k5z9CIcY9Km3DvY1E3qCtC7XgcXCbvIdbJTay3OTsF6D7uKhEcOV0ZHuHMiLr5MjezyJJQEsD75n/QnLt6w0dX56ySN62OrvpwmtfE0Qx35NeaGqtx1xngRv7negR/c9qExPZedhJNQq6PxwEcO6TIwZMvYNDfJwlyyjV653vtUOzrv9WcBg6n4/DZVRgcVCFUW8xA6FjpWew1ziIX2gL9jAgyAL9wQwdZcCG34OadVq4vSUfiYsRQXqHIR4Ziv9wk/ELUBOjZGeoc3MnnS1WxF7U4ypWb1C4nEcGdB1/I767gZ/A7eJMHDsbGIcCTzc3+EbTr3S8scV5Bv82sHzGHaQMEMSBSKr88rSEjilgRFDD4HJjv/4V++3fculzui9M8PcDAi6n1q5nWWaywk2i9QfpgRAJk0Vbw0cNjRy66QhjdMTpXVSejohwLz6kHdk38O1Ura5a0gv3UD7C8KMW/1pTxTEAi8/jhbotLBKp7IUDc/MbJMNxokrXFdZ3h36f+zKM18HijnJ41S8mbHZis3PjKHvHfG6lzhAOg1Jq3+AzvXoP5/kjGdPMYAojvG8pSHuewSAIoTdBcX3QUivPzMt1nc0pnrb2fVPjed5na2sdoKZ2mU3WuR5qEB/K+bLZjcdUGtG2gypuocMO6HaJsJ52Vn/99GHrwthiAo2WxVZ6HtfF/3MF1ZNDRkU0b8KfwyVMdxHwisDhbRcsAlpF5Ym1vqFC8kgpET+eEQ69tIIdFt1WblO+Js4/pjTNHF9WgqdR3O/Dx4fzmQj8Q7nsqHX21Zlcm2ycbi7e77C1oKLVgJBCN8EhzQG3pKHT/WGpX8byLwbSbSrrRq/85nfQY+eQuznCh70RiJhZahi9sqUbfXNT5Gkdwd6L2Efczd14xEDG/qQRExIicvMeeBbe0FmkUWOVs9752UJhAsc5lbiZ9Sjos6bZ1+XJi90fIl3HLMjoS9QfmTaIc07r3tJULzLue1CTOPG/SOsPA0u4Lcs1hJetUXCtuL8tJ7uGhQCpOqtow2b7diSgkus5eufycfjU/sxh6zGqhL85i22Zog8CZ33G2oco7+P5Ga5BH+0h0JuROkU5TQ/vRFmyWAvUg6ZkrB4vdxtDW7kzXbID6Dqr57cG5051qcGz1QyQTn89uw3ov06g7f32uHakBv+wBh3hi3vHsH6nPRgBzrk8rHN9rzDAUub85fdFUimldPpoVJFSsYn9xsuwu+bqHe1oimgTY6SP2sPPjo4xEvxBpHRFbFxSlxjmalyS7MuYRB0umAU+RAFyTNlqLEdbUmDpJ8NB6LONFD8HdnxXW/Fa1vvfEng+RmxglbtxUwug6HPGnkHyC/xVnJZ8KB56B3qY7TgpLgeTptFbAMCK7r3bYsHeH+lkMHTVurbUxZVxI3jfi6gW38yY34D41b69UdrMWyTa54MqYgfRdgslOM0qyPUtmx3T0s08N0fuNeFP7OHe4GwX6NsCvVBgtfBL3ih/RQ33ZQiG5VVPdmzu+c2RUV2p9g30MCJ47mfp8ZJ8B1jOd4osNI61IFxfFkV1H47KXglJHkuq9rkfh5mim0BysRhmAtH62a7WcROi+Wh34T5UKVn4uveuQcnz+imrcQWERSHWa5X3t1ZHCNwXstkW+hb1YmjUEE8n0pLPgX04HRO7yOdbbZVGuME2bpsEunvz4zgiHilVnHlAp4cxsvSBLSNgsVJy7gpY1MQ+cR6nTOy0gm+Xb5If9BvJTqJtAF9eekf0rUevCRA17Oeuup+mM60DdcPURfFDSrKKo9ILYQfZDLCkwoI0TIEFV3A1bbPOO+UYyJ5/R4gFGT6RGaVnlqNX1XISdByHULIZPcbS4P/uAQwtfHDvXPFgkw0qV+LUmD1ikcu2QNsqOO7M8+DBmnpLOTG5mMM2uQZxR8E+l1PVjTDloWX+F56vUTAJNwpsjt3TNaekIVLLLM3a5DeoO94If6SLgDBF6dze9rACZpAnX0GkjFhraS2fPJCqt5it2BcrCP0dWiQyjf3TN2x2bgiLpqZwWs7Peypirnio5sVNSIW4V/gnFXOJddaQux5wmQB+6B/sxmMMasFKsqrHXu3YxCJcu33IYo5XZTijUKcmIiKwRKmzppvVmsFoAj6hh3rXpkuZjepEfij9LG8HHEDpHR0D6tc9GHoSMKFXs/wNytQ/xVMXMr5T3JIiwKMSWHFhNOq+HLW2gs/IoLb8OW7ROsxyZ5r1SsWsTMkC6AS0hA37C8ycXArIiZtJCx40FFjfeg2MfCdHEq2fEub4YobJwMK6mDGnDmWsTZ/ISOv9q9veWTiWNhyYZhWJ6qmsO0KNUA58hhZS0jUth2rcUm8x2M7RNefx+bOTuXwwNxfrw/wUR+LhQZbtb1r/aB4ZkZ81aSaGULTk/0DW4RFp0wtL+sm50JbU8z7OIRgpjW2EAd6gTXn3NuSbggl/HhkV0BF1jEXWqvT33mOmYXUf9SDRIYiIdJym/1uN5q3qQLDco0L7IdftgboDhidR8mRtrcFxhlNBrKvAvApF3dRmyd/uJBtbUA6ZtDbXHxnybORemXZw2Ft5aNlDZYtQqt1xEfpDDbiXNUSbu9GmMIL/05rkhzmlQC0dnU5QxD3Nlj8S1fM2j2lPRse0+SBFXy3Y75KnWqawIjQH+FnA6Sn9mHMbm4CIy0uuj7+N7mVZ1HBFsb2dqdHFxrMBNRdFJaNrcpEkvH1YvACsnq30W8XzdXBBTa/CfSb/yeLsalHxtIN5SVmsOqdfsVuHe5HCxJm437HpgW+g1aOg1wv+FP3kNTsQxiqqJ7zuPMlMokMGQYNkqmXvsXeKIanyUDmhfQyH8jskQE/jT/ndvinm9+MYG1wELjv3RFBSnW6zr4NLCtHszl81ya8WI7q3dXzEfITU9t7pmv04+W5GVgvNTjvI3jsRpcL4z6KFXkPX+bLBo6xnkaAoCbdmOGeMAqKE5obHvNgYjdK72BG+i2y0iERMqUMWT3mrSzKRYOnRX/MTmYR8ebP3+iVcnh1P5+s0wueqoaCGta3REMN5NqDRLV68RHsOJ1kXig/gTR1piaRAUT+SX2E678GF3gNCwgatu/bIGNCv+9Ss2gnXYkdWo+YiQKACrCMTz4RgD+aVVRr/JyDwGS7gkwDxR4qq47cspqvtKW+3+kwfEkFrUa5Z00+NkxwZr0LSdZ1Ybas+at6a5a5o/qVqcP8krDguw39L0mZWyhJC5irYqwEKIWnN59KGOlu6IkCS4KtSTiwI/ImFVDASaexx5XLuQh/7CYYi2bTpVJ0FnI/G6NU9d+dZdGPptlstiaJCkHIMw/HlxJlTIJu4Ooy1LFwY+SBP4RQLpjiEtMdPDNIPO9l0pxo6b/JPXWFi39DIHULSBH1DtSZk0JBzqoWrtv+P9wQidpi6SRcHFQM24mlKNnFH+C3zS+hxxckSKV+kFvQrG9tPuNI9c5dgid26BSdxRGDL3kRZ+euRchQnymGMwPgS53EyQCr1WJHpDI1SmZ50j7mYn+INGwPjmKm0bEwociDz0YKJe85TJjg+A2DdOKfFZxBQVYfbQu6C6Yn0VmLKQFfDTjuj6dJOWdUd2XGRYiBVb8zf0aM7L6C1bo0DZ4FLmlXT9qEj86fIaHz3ntbnZXAxZiT4v6I+d5bLjRXSauWZJ64IwDvh0L+tloYozyajE3SQRPRBXOzRrZ6bx2Bn0qYRQX7FpdQMOHVdtaLtA6MzMCksO/698J8MXmfOKaw2fx9S0LmroxhprXSv/kShOZA27lXhH5fNaKLrgwKjWNE2LyAAZqR5JtDEuR5xQfiVa+fr59BSCaPDVio+YmMFS599x+JnMtxhDW3SzOgU36nF9U6Ito+a8S1E2cw9Rt+tYIfA0Y9YWn7jT/dHSJEbVVeAP513KLU3oToOag+QdiEUvYs93Xc3xmfH7qkp3vBbR5lq8ezjHWGYEbk1ak+9o7ko9gbLOKj2NJK44k4fLparlQz6pfq8ZkSEBPEsdHGEBRvQpT7lP/yZZ+6Njb6EprIZ2eYRNwzzpLml+blIkaNIsXpZOVTYAipOYfDho+xsRao/K59R6Bwt5hstXLPxlUmjttIVGvIMl0ZorbqwusUh4sFrM7fnksV1QVmQhXgfrI/AO6Sh+T2N5nb98gt7ZgfR20W9cvCuBOyF0h86ncycbry4Cd3Bwpx2vAbqIm0AmGxck05/QQKcqj7V4buxc2terkrAfpqkd/rHHEvsEOVWhxbN1eXp+Uva7DPKGFq1BrbAFaLs+1BoRU2bow28ixMd380LJQl5sOivffgcl6qoprhWOdfM4vgiq9gc8+Yw+qzR4yaX+pjHSOiSOrV8qWY+vcLtsxH59XGqZB25WLNQPeFsf0GdaT5NIVVTMEN4JbMIBl9yESyhDoYztO9BtOZM4rw15oiFToPxNjBm39pNFJ8sj70f5UX3RFHB8r4tsvOFKJW3Rh4Ewe2SpUiWRGZ+08yAB44M3BBH/htuWbJ7dIVI9zNxg6ZDOPnuIHGvjXE386Xu6ihrON4uyju83gHqhZablSA97acQbxsb50jJdagz7OfCD00Jn6CAHLhfhGnIpmDObUpj6CpUumxvaANgAa0fpNVOXZ6cuXykNBK7zWNrkzUWp4XPUkiYnb8fcaNspVq6CucV3eLVqljyLrSIPyH8IX9/HEWEpZGjgMwxft7WLTuzIPMle43jX010Xo+9FB5fuc9NC1jLeYYnEMMGixhXwPRANKbVIdUWDVVQkWQr1b8NfAAhD2BII73+4w/rYtF7QOq1Tza+EE6HJqsmBDZ3D56tLsx99ehuI1DRHYLSE8PAQVufKUu0SCNeJ4S1TG29vay9r38U7FJwT0jgr0/Sw2s8HjUI96jXhbR7/Pa7A5hrS7fZOPli7JRfZ15rkaSJD3ZmVU8Znv8nS0lfvRGqckzGK7J/yZJpLL2OWexBqQPh/ZHvKrV4cKF8ask0neDo/LvNxoFj8p3UgZphSnIGfhIDIDOGa4uUxeha7WIUzNVFVSY3pnsVcblnUJXlPZRgSnKrIIhlKoUfx739hs4dzw+7SqVyGacx45rCyFTYUcmFEpIIzD9zcG8KJj/LWn98mwViAPpAguJKcK7+tmaGCAemsZ977nF8t2NPYRAAr0f0SfPJkvTBb9rnW9LLFxc9UwQMemxPsGsVuyls9ioywJMNzVk/TxOy6IPimMoS/wBER6DQOm9O7NSW7sfDfKOMBeuIno2VfImNuvZJwqx+mQgCdPrTXNXYGn1ZVsZMG5lMvcVJdQzKE/AReWPH7Ldcabcu+tuEyWtYfIoHRj26V5pJm4u0VCnxvAcg8Rfkmm1MDoC5SXWSc/B5uOHiTab4Vm5uM7XpLQOjZ7ikcNq+SgIt31zk6gilU/EayFvjdhOmw+agsKPIHKOTzv7SfC6BJ6rN4r+5FB4eYh0E2o1VuU2+VT/gI6IzLecvOo+BQuD2/mefVvQQN3D4wo84ZPB2RFSeVk3zEL2wsh0cLiNwEbY8+ZFKnWokUuX8tnqSrQ1g/1+aA65sP53br2K5oFEfbVozi5uV5Kw8NsiZ5S7rBqh+wZTJ3qo5qNmv9yvPBHghp/ZKvoqfT5t/EVtBnVGNdWdAA6vJf/R5trIVXUj6p4J2508a4aUVOef0LLq9flvHGQgih+1zsjI1kfOqztAg6lZYzaZjxGT8UhWmaMOpOfjU/ymsOZr1MFFngIRmaoDc4UR9/cJ6zuBCJxbsR5Y28wHHh0eWbF2sDiHFo/s+NPwmTBYl9RE7xy+22m8Nb0BtvTBxwxdwEIWP55EmDb7W+pkLIzpna+yKmns+tmfcGMuRB/dmLgHGmAeU0NhIVKJ/Hp4vPhUUqc8NgVLR8tb9onIz4dCKps79QaoVeKbUclVid936/EDqNZTzQcTzKe6KkkyZkTKnCKeYA1P+uX23t6DlDgwFBqVJXzpjvnaFXND046GLLVjKGdWLMODJMa/aS8BkHj+BkD/SEy/+gxo28Dleh4EHl0MYlt3GSS2ms1M8hYSLsmViMalrtSf1oLu7r5UZHu+FavUO2fr3AkFhvZum2zUp405PCHevbiXI9WDssF/N+aeAM/zr30ARregt732f8cuNMqEk7xKuCb1m2sckvh2tYk6Oqw+x/bQstKCsPtEshez8a27X+K63HzUuyaXVb4/ytgGFzLUjssv490HP5QeeJtJwJQF1uo6qrJwhKQluo6l3BVp0x3jpGs/N5UY53Z8ksIei55cI24TFyFHJDj1+6Xurg/7XFLobxVAQWE+LfQW7BqVciAGYwV2sWEwoCpSIRSV1PPJ3TXgXWEOmHjxAbwQR8Y/sMD6ttpj7mwmbsIMJAia849HDJVgKcCT2BmvFSR4ODAYhNKhcOFnaEYBEXTAzIRaQPUPT1k6OG5KfYj5xxOEBH3jcH8oHXG9BjkbKeqRyc7I5dBAbuAuPGYt0GoFkaBC617pj+4aRsuegGiktdPg/gXYZaPgVlYyUahTt1SfWBHbBfyknWrwz7dbuDoMIKZRiVTQGX3+zJwLvTYAyCCRZHo2KaNjEFmntegVlHQF6WcnurnoucY7KvuGGShGcbiNl3QHbuPVU3mr4o/lcHoFisL3/1HoS+SE3PJmT/aAo8mviBDtFimmh7RQKNdmM3f+mKUSPKSoXj6maHSSq25WEHacd/JpE3ziySO5ChK6vt0bVtQkvN60mlj9CN2DGlz5vTaraeg6UImCqqfttrJBQ7lvxQOFwpfuQsxevbVx3QoaDvYzzFTYEARH7n2kSgAgVMbSUe4sT9Ey9Tbx6M/8/ath8zCmI+KfLAq1atp7q+FNRMIefLgKyt/BcRrxt1rWvkFvG6uQxmkdJhMTwTMBtm0WEudqkz+Wjpt1CDoFj7GoVTaJYorRj7LiI7zzjUJxhSVkt6dmL8N4aRY10s/3WPE3vN4AYHdOHflOYNtFDmXSO9Phsr3iW/IE3c6bk2jVNt+j323Ib/Sasa91B7MJoi1qCU9GFkssHZWzMUYl5uWwp7qwjnvGMxSZS225r+9bEdvBFjT0aYfyzb0MHlcP65SEv5jAWXdyY2oi1HYW4QcaxuRoSOUcVW858d4c4uBhMbSjtefL+gB0gENWY3TSeoTdb46tP+33XHvAysUiToFZyqISwga49e/rOpM0D10X3spFTGB7DX2d02WrcANnEaxRz0BKumCfVSNpxJGK0rotbKCoVG4w3lmW2q4mo8ApndNa9R7CL+p1TFYbKpcT49mgKsnTZw3iRDxah7phNZk7BEVfaqhLHFYAuJKpR7yUxDGzNFBMnrQIcf16viwt95PcyTKS+2gf3v7A0iRnAUcnMtwc4KDi01hqvxAEUvCnXz5XFIyJUPGrAApODQigq3izLKNGlaFnrh6r2wb4IkfauSyDm9IhzIPz96E9iSuS7IgWoM2spSfCED9OoihibOv2KSv+TKvmfqH88BNjY/Of33ataKEHhjfCOwwA45v487L728TfqVzACRJmkuIfEsydfb1+vYsgpZ/4PSC95QQnke3Bpe8b7xi5IKCeCkY3gZDqtaziHdeXz2tYO722rJ0ZwkiLmYFET/tgY6M+AY7JUEMidtO5AxrKUvBTNE6d5n+KeNyBtB7lcS7pTcTEk6MmxkZSBlANuGTgIDYYfWOi2k34trvJo8IUT7GVZ2QEK4e3/blmZk5SQrCBr+QX0N9WiVnkANjCS9okzqE3XdIy1E1l/sX7oMqE0ahmD4WF2JCpLz/2xujB2LsB1L2g4OgSd8YEIcs+Uiy6lh8qp/hUoMaRmSLvKLpYjD6RcvdxwaSJe71T/6VJ0T8ZsbZ9w2HtMMlFhxZMdrgUgYHOgLY+kE4SHQx+2Yz//+s/Pd/9+/3PK6q6VW7rn1j9LLSad+S98zsSm90JzODM9YQmBS+qn+TRWg94OUcmVwJe'))
+APP_VERSION = "1.0.1"
+UPDATE_CHECK_URL = "http://recruiters.site4people.com/api/latest_version"  # ← replace with your API
+
+
+SETTINGS_FILE = "settings.json"
+
+class API:
+    def __init__(self, window):
+        self.window = window
+
+    def load_user_info(self):
+        user = get_user()
+        credentials = get_credentials()
+        return {"user": user, "credentials": credentials}
+    
+    def update_user_info(self, username, password):
+        """Update user info from JS login"""
+        update_user(username=username, password=password)
+        return {"status": "success", "message": "User info updated"}
+    
+    def update_credentials(self, settings=None, *args, **kwargs):
+        """
+        Update credentials from JS. Accepts either:
+          - a single positional dict (from JS object), or
+          - keyword arguments.
+
+        This is flexible because pywebview passes a JS object as a positional
+        argument rather than keyword args.
+        """
+        # If a positional settings dict was passed from JS, use it
+        if isinstance(settings, dict) and settings:
+            result = update_credentials(**settings)
+            return result
+
+        # Otherwise, if kwargs were provided, use them
+        if kwargs:
+            result = update_credentials(**kwargs)
+            return result
+
+        # Nothing to update
+        return {"status": "error", "message": "No credentials provided"}
+
+    def _safe_evaluate(self, script):
+        """Evaluate JS in the webview and catch errors so background threads don't crash.
+
+        Logs any exception to stdout and returns False on failure, True on success.
+        """
+        try:
+            self.window.evaluate_js(script)
+            return True
+        except Exception as e:
+            # Keep this lightweight; don't re-raise from background thread.
+            print(f"evaluate_js failed for script: {script!r} -> {e}")
+            return False
+
+    def send_sms(self, recipients, channel, delay, settings):
+        """
+        Called from JS to schedule sending SMS or messages.
+        """
+        # ✅ Extract recipient names or emails safely
+        recipient_list = [r.get('name', r.get('email', 'Unknown')) for r in recipients if isinstance(r, dict)]
+        recipients_str = ", ".join(recipient_list)
+
+        print(f"Scheduling message to {recipients_str} via {channel} after {delay} seconds... {settings}")
+
+        # ❌ Original code: started the function immediately instead of passing it
+        # threading.Thread(target=self._delayed_send(recipients, channel, delay), daemon=True).start()
+        # ✅ Fixed: pass callable, not function result
+        threading.Thread(target=self._delayed_send, args=(recipients, channel, delay, settings), daemon=True).start()
+
+        return f"Scheduled {len(recipient_list)} messages via {channel}"
+
+    def _delayed_send(self, recipients, channel, delay, settings):
+        """Handles the delayed message sending in a background thread."""
+        # 🧩 Convert milliseconds to seconds if delay > 10 (assume it's ms)
+        if delay > 10:
+            delay = delay / 1000
+
+        print(f"Waiting {delay} seconds before sending...")
+        time.sleep(delay)
+        Total = len(recipients)
+        i = 0
+        # self.window.evaluate_js(f"update_Progress({i}, {Total})")
+
+        if channel == 'email':
+            for recipient in recipients:
+                i += 1
+                name = recipient.get('name', 'Unknown')
+                to_email = recipient.get('email', None)
+                email_subject = recipient.get('emailTitle', '')
+                email_body = recipient.get('emailContent', '')
+                email_password = settings.get('appPassword', '')
+                from_email = settings.get('senderEmail', '')
+
+                print(f"Sent message to {name} via {channel}")
+                safe_name = name.replace("'", "\\'")
+
+                if send_email(from_email, email_password, to_email, email_subject, email_body):
+                    bounced = check_bounce(from_email, email_password)
+                    if to_email in bounced:
+                        print(f"❌ Email to {to_email} bounced!")
+                        self._safe_evaluate(f"update_server_status({recipient.get('id')}, 'Bounced', null)")
+                        self._safe_evaluate(f"add_Log('❌ Email to {to_email} bounced!', 'error')")
+                    else:
+                        print("✅ Email delivered successfully.")
+                        self._safe_evaluate(f"update_server_status({recipient.get('id')}, 'Delivered', null)")
+                        self._safe_evaluate(f"add_Log('✅ Email {to_email} delivered successfully.', 'success')")
+                
+                self._safe_evaluate(f"add_Log('Sent message to {to_email} via {channel}')")
+
+                self._safe_evaluate(f"update_Progress({i}, {Total})")
+        else:
+            user_path = settings.get('userDataPath', '')
+            print(user_path)
+            user_path = user_path.replace('\\', '/')
+
+            options = webdriver.ChromeOptions()
+            options.add_argument("--start-maximized")  # Open Chrome in maximized mode
+
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--remote-debugging-port=9222")  # Debugging mode
+            options.add_argument(f"user-data-dir={user_path}") # Uncomment if needed
+
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=options)
+
+            driver.get('https://web.whatsapp.com')
+            time.sleep(5)
+
+            result = webview.windows[0].create_confirmation_dialog(
+                        "Confirm WhatsApp Login",
+                        "Please scan the QR code on WhatsApp Web and click OK once you're logged in.\n\nContinue?"
+                    )
+            
+            if not result:
+                print("❌ User canceled WhatsApp send.")
+                self._safe_evaluate("add_Log('You canceled WhatsApp sending.', 'warning')")
+                driver.close()
+                return
+            # show di
+
+            # # Wait up to 10 minutes (600 seconds) for the Profile button to appear
+            # try:
+            #     # Wait for up to 10 minutes (600 seconds)
+            #     profile_button = WebDriverWait(driver, 600).until(
+            #         EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Profile']"))
+            #     )
+            #     print("✅ Profile button appeared!")
+            # except Exception as e:
+            #     print("❌ Error:", e)
+            # profile_button.click()
+
+            # profile_details = driver.find_element(By.CLASS_NAME, 'copyable-area')
+            # text = profile_details.text
+            # user_no = settings.get('whatsappNumber', '')
+
+            # # extract all digits from the text
+            # digits = re.sub(r'\D', '', text)
+            
+            # if user_no in digits:
+            # print("✅ Number found")                  
+
+            for recipient in recipients:
+                i += 1
+                name = recipient.get('name', 'Unknown')
+                to_phone = recipient.get('phone', None)
+                phone_content = recipient.get('wp_content', '')
+                if send_message(driver, to_phone, phone_content):
+                    print(f"Sent message to {name} via {channel}")
+                    safe_name = name.replace("'", "\\'")
+                    self._safe_evaluate(f"add_Log('Sent message to {to_phone} via {channel}', 'success')")
+                    self._safe_evaluate(f"update_server_status({recipient.get('id')}, '', 'Delivered')")
+                else:
+                    self._safe_evaluate(f"add_Log('Failed to send message to {to_phone} via {channel}', 'error')")
+                    self._safe_evaluate(f"update_server_status({recipient.get('id')}, '', 'Failed')")
+
+                self._safe_evaluate(f"update_Progress({i}, {Total})")
+
+            # else:
+            #     print("❌ Number not found")   
+            #     self._safe_evaluate(f"add_Log('❌ Sender number {user_no} not found in WhatsApp.', 'error')")
+
+            driver.close()
+
+        self._safe_evaluate(f"add_Log('All messages were delivered successfully.', 'success')")
+
+    def save_logs(self, text):
+        try:
+            folder = os.path.join(os.getcwd(), "logs")
+            os.makedirs(folder, exist_ok=True)
+
+            filename = f"messaginghub_logs_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
+            filepath = os.path.join(folder, filename)
+
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(text)
+
+            return {"status": "success", "path": filepath}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+        
+    def save_settings(self, settings):
+        with open(SETTINGS_FILE, "w") as f:
+            json.dump(settings, f, indent=4)
+        return "Settings saved to file"
+
+    def load_settings(self):
+        if os.path.exists(SETTINGS_FILE):
+            with open(SETTINGS_FILE, "r") as f:
+                return json.load(f)
+        return {}
+    
+
+def check_for_updates():
+    """Check for updates before starting the app UI."""
+    print("🔍 Checking for updates...")
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        }
+
+        response = requests.get(UPDATE_CHECK_URL, headers=headers, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            latest_version = data.get("version")
+            download_url = data.get("download_url")
+
+            if latest_version and latest_version != APP_VERSION:
+                message = f"""
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            text-align: center;
+                        }}
+                        .update-message {{
+                            margin-bottom: 20px;
+                            font-size: 16px;
+                        }}
+                        .download-link {{
+                            display: inline-block;
+                            padding: 10px 20px;
+                            background-color: #4CAF50;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            transition: background-color 0.3s;
+                        }}
+                        .download-link:hover {{
+                            background-color: #45a049;
+                        }}
+                    </style>
+                    <div class="update-message">
+                        A new version ({latest_version}) is available!
+                    </div>
+                    <a href="{download_url}" class="download-link" target="_blank">
+                        Download Update
+                    </a>
+                    """
+                # create a small temporary window for alert
+                temp_window = webview.create_window("Update Available", html=message, width=400, height=200)
+                webview.start(gui='edgechromium')
+                return False  # stop startup
+            else:
+                print("✅ App is up to date.")
+                return True
+        else:
+            print(f"⚠️ Version check failed: HTTP {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"⚠️ Could not check for updates: {e}")
+        return False
+
+def resource_path(relative_path):
+    """Return absolute path to resource, works for dev and exe."""
+    try:
+        base_path = sys._MEIPASS  # for PyInstaller compatibility
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+def start_app():
+    file_path = resource_path("SimpleMailWP/index.html")
+    
+    """Start the main app only if update check passes."""
+    if not check_for_updates():
+        print("❌ Version check failed or outdated — closing app.")
+        return  # Do not launch the main window
+
+    window = webview.create_window(
+        "Message Sender",
+        f"file:///{file_path}",
+    )
+
+    api = API(window)
+
+    # ✅ Expose API methods
+    window.expose(api.send_sms)
+    window.expose(api.update_user_info)
+    window.expose(api.update_credentials)
+    window.expose(api.save_logs)
+    window.expose(api.save_settings)
+    window.expose(api.load_settings)
+    window.expose(api.load_user_info)
+
+    def on_loaded():
+        print("Window loaded and ready.")
+
+    webview.settings['ALLOW_DOWNLOADS'] = True
+    window.events.loaded += lambda: window.maximize()
+
+    webview.start(on_loaded, debug=False, http_server=True, gui='edgechromium')
+
+
+if __name__ == "__main__":
+    start_app()
